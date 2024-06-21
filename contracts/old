@@ -1,0 +1,527 @@
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SupplyChain {
+    string constant ManufacturingStatus = "Manufactured, ready to Dispatch";
+    string constant InTransitStatus = "InTransit";
+    string constant DeliveredStatus = "Delivered";
+    string constant ManageInventoryStatus = "Sent to Quality Check";
+    string constant QualityCheckedStatus = "Quality Checked";
+    string constant QualityCheckFailedStatus = "Quality Check Failed";
+    string constant ReturnRequestedStatus = "Return Requested";
+    string constant ReturnedStatus = "Returned";
+
+    struct Medicine {
+        uint256 id;
+        string prefix;
+        string name;
+        string description;
+        string manufacturerDate;
+        string expiryDate;
+        uint256 price;
+        string ipfsHash;
+        
+        string currentStatus;
+    
+        uint256 quantity; // Added quantity field for inventory management
+    }
+
+    struct MedicineOwnership {
+    address manufacturer;
+    address wholesaler;
+    address distributor;
+    address hospital;
+}
+
+
+    mapping(uint256 => Medicine) public medicines;
+    mapping(string => uint256) public medicineIdByIpfsHash;
+    uint256 public medicineCount;
+    mapping(uint256 => bool) public isMedicineChecked;
+    mapping(uint256 => MedicineOwnership) public medicineOwnership;
+
+    event MedicineCreated(uint256 id,  string name);
+    event MedicineAllocated(uint256 id, string name, address wholesaler);
+    event MedicineAllocatedToDistributor(uint256 id, string name, address distributor);
+    event MedicinePurchased(uint256 id, string name, address purchaser);
+    event QualityCheckPerformed(uint256 id, string name, bool check);
+    event MedicineShippedToHospital(uint256 indexed id, string name, address hospital);
+   event  MedicineAllocatedToHospital(uint256 id, string name , address hospital);
+   event MedicineReceived(uint256 id, string name, address hospital);
+    
+    constructor() {}
+
+    function createMedicine(
+        //string memory _prefix,
+        string memory _name,
+        string memory _description,
+        string memory _manufacturerDate,
+        string memory _expiryDate,
+        uint256 _price,
+        string memory _ipfsHash
+    ) external {
+        uint256 id = medicineCount + 1;
+        medicines[id] = Medicine({
+            id: id,
+           // prefix: _prefix,
+            name: _name,
+            description: _description,
+            manufacturerDate: _manufacturerDate,
+            expiryDate: _expiryDate,
+            price: _price,
+            ipfsHash: _ipfsHash,
+            wholesaler: address(0),
+            distributor: address(0),
+            hospital: address(0),
+            currentStatus: ManufacturingStatus,
+            quantity: 0
+        });
+
+        medicineIdByIpfsHash[_ipfsHash] = id;
+
+        medicineCount++;
+        emit MedicineCreated(id, _name);
+    }
+
+    function allocateMedicine(
+        uint256 _id,
+        address _wholesaler,
+        string memory _medicineIpfsHash
+    ) external {
+        require(medicines[_id].id == _id, "Medicine does not exist");
+        require(medicines[_id].wholesaler == address(0), "Medicine already allocated");
+
+        medicines[_id].ipfsHash = _medicineIpfsHash;
+        medicines[_id].wholesaler = _wholesaler;
+        emit MedicineAllocated(_id, medicines[_id].name, _wholesaler);
+    }
+
+    function buyMedicineFromManufacturer(uint256 _id) external {
+        require(medicines[_id].id == _id, "Medicine does not exist");
+        require(medicines[_id].wholesaler == address(0), "Medicine already purchased");
+
+        medicines[_id].wholesaler = msg.sender;
+        emit MedicinePurchased(_id, medicines[_id].name, msg.sender);
+    }
+
+   
+
+    function getAllocatedMedicineByWholesaler(
+    address _wholesaler
+)
+    external
+    view
+    returns (
+        uint256[] memory ids,
+        //string[] memory prefixes,
+        string[] memory names,
+        string[] memory descriptions,
+        string[] memory manufacturerDates,
+        string[] memory expiryDates,
+        //string[] memory composition,
+        uint256[] memory prices,
+        string[] memory ipfsHashes,
+        address[] memory wholesalers,
+        string[] memory currentStatuses
+    )
+{
+    uint256 count = 0;
+    for (uint256 i = 1; i <= medicineCount; i++) {
+        if (medicines[i].wholesaler == _wholesaler) {
+            count++;
+        }
+    }
+
+    ids = new uint256[](count);
+   // prefixes = new string[](count);
+    names = new string[](count);
+    descriptions = new string[](count);
+    manufacturerDates = new string[](count);
+    expiryDates = new string[](count);
+    //composition = new string[](count);
+    prices = new uint256[](count);
+    ipfsHashes = new string[](count);
+    wholesalers = new address[](count);
+    currentStatuses = new string[](count);
+
+    uint256 index = 0;
+    for (uint256 j = 1; j <= medicineCount; j++) {
+        if (medicines[j].wholesaler == _wholesaler) {
+            Medicine memory medicine = medicines[j];
+            ids[index] = medicine.id;
+            //prefixes[index] = medicine.prefix;
+            names[index] = medicine.name;
+            descriptions[index] = medicine.description;
+            manufacturerDates[index] = medicine.manufacturerDate;
+            expiryDates[index] = medicine.expiryDate;
+            //composition[index] =medicine.composition;
+            prices[index] = medicine.price;
+            ipfsHashes[index] = medicine.ipfsHash;
+            wholesalers[index] = medicine.wholesaler;
+            currentStatuses[index] = medicine.currentStatus;
+            index++;
+        }
+    }
+}
+
+    function getMedicineById(
+        uint256 _id
+    )
+        external
+        view
+        returns (
+            uint256 id,
+            //string memory prefix,
+            string memory name,
+            string memory description,
+            string memory manufacturerDate,
+            string memory expiryDate,
+           // string memory composition,
+            uint256 price,
+            string memory ipfsHash,
+            address wholesaler,
+            string memory currentStatus
+        )
+    {
+        require(_id > 0 && _id <= medicineCount, "Invalid medicine ID");
+
+        Medicine memory medicine = medicines[_id];
+        return (
+            medicine.id,
+           //medicine.prefix,
+            medicine.name,
+            medicine.description,
+            medicine.manufacturerDate,
+            medicine.expiryDate,
+            //medicine.composition,
+            medicine.price,
+            medicine.ipfsHash,
+            medicine.wholesaler,
+            medicine.currentStatus
+        );
+    }
+
+    function allocateDistributor(uint256 _id, address _distributor) external {
+        require(medicines[_id].id == _id, "Medicine does not exist");
+        require(
+            medicines[_id].wholesaler != address(0),
+            "Medicine has not been allocated to a wholesaler"
+        );
+        require(
+            medicines[_id].distributor == address(0),
+            "Medicine already allocated to distributor"
+        );
+
+        medicines[_id].distributor = _distributor;
+        emit MedicineAllocatedToDistributor(
+            _id,
+            medicines[_id].name,
+            _distributor
+        );
+    }
+
+    function getAllocatedMedicineByDistributor(
+        address _distributor
+    )
+        external
+        view
+        returns (
+            uint256[] memory ids,
+           // string[] memory prefixes,
+            string[] memory names,
+            string[] memory descriptions,
+            string[] memory manufacturerDates,
+            string[] memory expiryDates,
+            uint256[] memory prices,
+           // string[] memory compositions,
+            string[] memory ipfsHashes,
+            address[] memory distributors,
+            string[] memory currentStatuses
+        )
+    {
+        uint256 count = 0;
+        for (uint256 i = 1; i <= medicineCount; i++) {
+            if (medicines[i].distributor == _distributor) {
+                count++;
+            }
+        }
+
+        ids = new uint256[](count);
+       // prefixes = new string[](count);
+        names = new string[](count);
+        descriptions = new string[](count);
+        manufacturerDates = new string[](count);
+        expiryDates = new string[](count);
+       // compositions = new string[](count);
+        prices = new uint256[](count); 
+        ipfsHashes = new string[](count);
+        distributors = new address[](count);
+        currentStatuses = new string[](count);
+
+        uint256 index = 0;
+        for (uint256 j = 1; j <= medicineCount; j++) {
+            if (medicines[j].distributor == _distributor) {
+                Medicine memory medicine = medicines[j];
+                ids[index] = medicine.id;
+               // prefixes[index] = medicine.prefix;
+                names[index] = medicine.name;
+                descriptions[index] = medicine.description;
+                manufacturerDates[index] = medicine.manufacturerDate;
+                expiryDates[index] = medicine.expiryDate;
+                //compositions[index] = medicine.composition;
+                prices[index] = medicine.price;
+                ipfsHashes[index] = medicine.ipfsHash;
+                distributors[index] = medicine.distributor;
+                currentStatuses[index] = medicine.currentStatus;
+                index++;
+            }
+        }
+    }
+
+     function performQualityCheck(
+    uint256 _id,
+    bool _checkQuality
+    //string memory _ipfsHash
+) external {
+    require(medicines[_id].id == _id, "Medicine does not exist");
+    require(!isMedicineChecked[_id], "Medicine already checked");
+
+    if (_checkQuality) {
+        medicines[_id].currentStatus = QualityCheckedStatus;
+    } else {
+        medicines[_id].currentStatus = QualityCheckFailedStatus;
+    }
+
+    //medicines[_id].ipfsHash = _ipfsHash; 
+
+    isMedicineChecked[_id] = true;
+
+    emit QualityCheckPerformed(_id, medicines[_id].name, _checkQuality);
+
+
+}
+
+
+ function allocateMedicineToHospital(uint256 _id, address _hospital) external {
+        require(medicines[_id].id == _id, "Medicine does not exist");
+        require(
+            medicines[_id].distributor != address(0),
+            "Medicine has not been allocated to a distributor"
+        );
+        require(
+            medicines[_id].hospital == address(0),
+            "Medicine already allocated to hospital"
+        );
+
+        medicines[_id].hospital = _hospital;
+        emit MedicineAllocatedToHospital(
+            _id,
+            medicines[_id].name,
+            _hospital
+        );
+    }
+
+
+
+
+function shipMedicineToHospital(uint256 _id) external {
+    require(medicines[_id].id == _id, "Medicine does not exist");
+    require(
+        medicines[_id].distributor != address(0),
+        "Medicine has not been allocated to a distributor"
+    );
+    require(
+        keccak256(abi.encodePacked(medicines[_id].currentStatus)) == keccak256(abi.encodePacked(QualityCheckedStatus)),
+        "Medicine quality not checked yet"
+    );
+    require(
+        keccak256(abi.encodePacked(medicines[_id].currentStatus)) != keccak256(abi.encodePacked(DeliveredStatus)),
+        "Medicine already delivered"
+    );
+
+    // Update medicine status to "InTransit"
+    medicines[_id].currentStatus = InTransitStatus;
+
+    // Emit event to notify the shipment
+    emit MedicineShippedToHospital(_id, medicines[_id].name, medicines[_id].hospital);
+}
+
+
+function getAllocatedMedicineByHospital(address _hospital) external view returns (
+    uint256[] memory ids,
+    string[] memory names,
+    string[] memory descriptions,
+    string[] memory manufacturerDates,
+    string[] memory expiryDates,
+    uint256[] memory prices
+) {
+    uint256 count = 0;
+    for (uint256 i = 1; i <= medicineCount; i++) {
+        if (medicines[i].hospital == _hospital) {
+            count++;
+        }
+    }
+
+    ids = new uint256[](count);
+    names = new string[](count);
+    descriptions = new string[](count);
+    manufacturerDates = new string[](count);
+    expiryDates = new string[](count);
+    prices = new uint256[](count);
+
+    uint256 index = 0;
+    for (uint256 j = 1; j <= medicineCount; j++) {
+        if (medicines[j].hospital == _hospital) {
+            ids[index] = medicines[j].id;
+            names[index] = medicines[j].name;
+            descriptions[index] = medicines[j].description;
+            manufacturerDates[index] = medicines[j].manufacturerDate;
+            expiryDates[index] = medicines[j].expiryDate;
+            prices[index] = medicines[j].price;
+            index++;
+        }
+    }
+}
+
+
+
+
+function receiveMedicineFromDistributor(uint256 _id) external {
+    require(medicines[_id].id == _id, "Medicine does not exist");
+    require(
+        medicines[_id].hospital == msg.sender,
+        "Only the designated hospital can receive medicines"
+    );
+    require(
+    keccak256(abi.encodePacked(medicines[_id].currentStatus)) == keccak256(abi.encodePacked(InTransitStatus)),
+    "Medicine is not in transit"
+);
+
+
+    // Update medicine status to Delivered
+    medicines[_id].currentStatus = DeliveredStatus;
+
+    emit MedicineReceived(_id, medicines[_id].name, msg.sender);
+}
+
+function verifyMedicine(uint256 _id, string memory _currentDate) external view returns (bool) {
+    require(medicines[_id].id == _id, "Medicine does not exist");
+    require(!isMedicineChecked[_id], "Medicine already checked");
+
+    // Get current date
+    string memory currentDate = _currentDate;
+
+    // Get medicine details from IPFS hash and compare with stored details
+    // string memory ipfsHashFromDatabase = getIPFSHashFromDatabase(medicines[_id].name);
+    // require(compareHashes(medicines[_id].ipfsHash, ipfsHashFromDatabase) == 0, "IPFS hash mismatch");
+
+    // Check expiry date
+    require(compareDates(currentDate, medicines[_id].expiryDate) < 0, "Medicine expired");
+
+    // Verify manufacturer's address
+    //require(medicines[_id].manufacturer == msg.sender, "Invalid manufacturer address");
+
+    // Verify wholesaler's address
+    require(medicines[_id].wholesaler == msg.sender, "Invalid wholesaler address");
+
+    // Verify distributor's address
+    require(medicines[_id].distributor == msg.sender, "Invalid distributor address");
+
+    // Perform additional verification logic as needed
+    // For example, check manufacturing date, price, etc.
+
+    return true;
+}
+
+ function getCurrentDate() internal view returns (string memory) {
+        uint256 timestamp = block.timestamp;
+        uint256 day = timestamp / 86400; // Number of seconds in a day
+        uint256 year = 1970 + day / 365;
+        uint256 month = (day % 365) / 30 + 1;
+        uint256 dayOfMonth = (day % 365) % 30 + 1;
+        return string(abi.encodePacked(year, "-", month < 10 ? "0" : "", month, "-", dayOfMonth < 10 ? "0" : "", dayOfMonth));
+    }
+
+    function compareDates(string memory _date1, string memory _date2) internal pure returns (int) {
+        require(bytes(_date1).length == bytes(_date2).length, "Dates must have the same format");
+        require(bytes(_date1).length == 10, "Date format must be YYYY-MM-DD");
+
+        uint256 year1 = parseInt(substring(_date1, 0, 4));
+        uint256 month1 = parseInt(substring(_date1, 5, 2));
+        uint256 day1 = parseInt(substring(_date1, 8, 2));
+
+        uint256 year2 = parseInt(substring(_date2, 0, 4));
+        uint256 month2 = parseInt(substring(_date2, 5, 2));
+        uint256 day2 = parseInt(substring(_date2, 8, 2));
+
+        if (year1 != year2) {
+            return int(year1 - year2);
+        }
+        if (month1 != month2) {
+            return int(month1 - month2);
+        }
+        return int(day1 - day2);
+    }
+
+
+     function parseInt(string memory _a) internal pure returns (uint256 result) {
+        bytes memory b = bytes(_a);
+        uint256 i;
+        result = 0;
+        for (i = 0; i < b.length; i++) {
+            if (uint256(uint8(b[i])) >= 48 && uint256(uint8(b[i])) <= 57) {
+                result = result * 10 + (uint256(uint8(b[i])) - 48);
+            }
+        }
+    }
+
+    function substring(string memory str, uint256 startIndex, uint256 endIndex) internal pure returns (string memory) {
+        bytes memory strBytes = bytes(str);
+        bytes memory result = new bytes(endIndex - startIndex);
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            result[i - startIndex] = strBytes[i];
+        }
+        return string(result);
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+// function verifyMedicine(uint256 _id, string memory _currentDate) external view returns (bool) {
+//     require(medicines[_id].id == _id, "Medicine does not exist");
+//     require(!isMedicineChecked[_id], "Medicine already checked");
+
+//     // Get current date
+//     string memory currentDate = _currentDate;
+
+//     // Get medicine details from IPFS hash and compare with stored details
+//     // string memory ipfsHashFromDatabase = getIPFSHashFromDatabase(medicines[_id].name);
+//     // require(compareHashes(medicines[_id].ipfsHash, ipfsHashFromDatabase) == 0, "IPFS hash mismatch");
+
+//     // Check expiry date
+//     require(compareDates(currentDate, medicines[_id].expiryDate) < 0, "Medicine expired");
+
+//     // Verify manufacturer's address
+//     //require(medicines[_id].manufacturer == msg.sender, "Invalid manufacturer address");
+
+//     // Verify wholesaler's address
+//     require(medicineOwnership[_id].wholesaler == msg.sender, "Invalid wholesaler address");
+
+//     // Verify distributor's address
+//     require(medicineOwnership[_id].distributor == msg.sender, "Invalid distributor address");
+
+//     // Perform additional verification logic as needed
+//     // For example, check manufacturing date, price, etc.
+
+//     return true;
+// }
