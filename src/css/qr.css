@@ -1,0 +1,88 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  justify-content: flex-start; /* Align flex items to the start */
+}
+
+.navbar {
+  flex: 0 0 auto; /* Make the navbar non-flexible */
+  display: flex;
+  flex-direction: column; /* Stack navbar items vertically */
+  align-items: flex-end; /* Align navbar items to the end */
+}
+
+.form-container {
+  flex: 1; /* Expand to fill remaining space */
+  padding-left: 20px; /* Add padding to create space between navbar and form */
+}
+
+
+/* Remaining styles remain the same */
+
+
+.form-row {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.form-row label {
+  width: 120px; /* Decrease label width */
+  margin-right: 20px;
+}
+
+.form-row input,
+.form-row select {
+  flex: 1;
+  padding: 6px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  width: 100px; /* Decrease input box width */
+}
+
+.form-row input[type="date"] {
+  width: calc(100% - 120px); /* Adjust input width */
+}
+
+.button-container {
+  text-align: left; /* Align button to the left */
+  margin-top: 20px;
+}
+
+.button-container button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button-container button:hover {
+  background-color: #0056b3;
+}
+
+.medicine-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.medicine-details {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-right: 20px; /* Add margin-right to create space between medicines */
+  margin-bottom: 20px;
+  width: 300px; /* Set a fixed width for each medicine */
+}
+
+.medicine-details p {
+  margin: 5px 0;
+}
+
+.qr-code {
+  margin-top: 10px;
+}

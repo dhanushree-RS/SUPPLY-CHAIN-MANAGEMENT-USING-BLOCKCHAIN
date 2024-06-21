@@ -1,0 +1,108 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f3f4f6;
+}
+
+.login-form {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 300px; /* Set specific width for the form */
+}
+
+
+.login-form h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: left;
+}
+
+.login-form h6 {
+  margin-bottom: 20px;
+  font-size: 10px;
+  text-align: left;
+}
+
+
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+  width: calc(100% - 20px); /* Adjust width to fit within container */
+  padding: 10px;
+  margin-bottom: 20px; /* Increase margin for spacing between inputs */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; /* Ensure padding and border are included in width calculation */
+}
+
+.login-form button {
+  width: calc(100% - 20px); /* Adjust width to fit within container */
+  padding: 10px;
+  margin-top: 10px; /* Add margin to separate button from inputs */
+  background-color:#5f7994;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+.login-form button:hover {
+  background-color: #233549;
+}
+
+.alert {
+  margin-top: 20px;
+}
+
+.alert p {
+  margin: 10px 0;
+}
+
+.alert.error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.alert.error .wrong {
+  color: #721c24;
+}
+
+.wrong {
+  color: #721c24;
+  font-size: 18px;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+/* Define shake animation */
+.shake {
+  animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+    border-color: red; /* Add red border color */
+  }
+
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+    border-color: red; /* Add red border color */
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+    border-color: red; /* Add red border color */
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+    border-color: red; /* Add red border color */
+  }
+}

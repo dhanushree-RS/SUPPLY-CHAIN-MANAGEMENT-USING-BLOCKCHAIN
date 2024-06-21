@@ -1,0 +1,42 @@
+.allocate-medicine-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .allocate-medicine-form .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .allocate-medicine-form label {
+    font-weight: bold;
+    display: block;
+  }
+  
+  .allocate-medicine-form input[type="number"],
+  .allocate-medicine-form input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  .allocate-medicine-form .allocate-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .allocate-medicine-form .allocate-button:hover {
+    background-color: #0056b3;
+  }
+  

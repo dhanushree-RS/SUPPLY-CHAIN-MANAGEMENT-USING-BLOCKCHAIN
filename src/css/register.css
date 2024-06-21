@@ -1,0 +1,151 @@
+.register-form {
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+}
+
+.register-form form {
+  width: 100%;
+  max-width: 250px; /* Limit form width */
+}
+
+.register-form input[type="text"],
+.register-form input[type="password"],
+.register-form select,
+.register-form button {
+  width: 100%; /* Make input boxes full width */
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box;
+  font-size: 14px;
+  max-width: 250px; /* Limit input width */
+}
+.register-form .half-width {
+  display: inline-block;
+  width: calc(50% - 6px);
+}
+
+.register-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #5f7994; /* Default button color */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease; /* Smooth transition for color change */
+}
+
+.register-form button:hover {
+  background-color: #233549; /* Darker button color on hover */
+}
+
+.register-form button:focus {
+  outline: none; /* Remove default focus style */
+}
+
+.register-form button:active {
+  transform: translateY(1px); /* Add slight downward movement on click */
+}
+
+
+.register-form select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box;
+  font-size: 14px;
+  appearance: none; /* Remove default arrow */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23111111" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>'); /* Custom arrow */
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px 16px;
+  cursor: pointer;
+}
+
+.register-form .select-wrapper {
+  position: relative;
+}
+
+.register-form .select-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #ccc;
+  transform: translateY(-50%);
+}
+
+.shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+    border-color: red; /* Add red border color */
+  }
+
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+    border-color: red; /* Add red border color */
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+    border-color: red; /* Add red border color */
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+    border-color: red; /* Add red border color */
+  }
+}
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+}
+
+.register-content {
+  display: flex;
+}
+
+.register-image {
+  flex: 1.5;
+}
+
+.register-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.register-form {
+  flex: 1;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+}
+
+/* Rest of your CSS */
