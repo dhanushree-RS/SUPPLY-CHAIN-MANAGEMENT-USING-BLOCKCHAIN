@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/SUPPLY-CHAIN-MANAGEMENT-USING-BLOCKCHAIN/static/css/main.a68f383a.css",
+    "main.js": "/SUPPLY-CHAIN-MANAGEMENT-USING-BLOCKCHAIN/static/js/main.b30b1328.js",
+    "static/media/register.jpg": "/SUPPLY-CHAIN-MANAGEMENT-USING-BLOCKCHAIN/static/media/register.c016f31fe754d277e68b.jpg",
+    "static/media/tachyon.mp4": "/SUPPLY-CHAIN-MANAGEMENT-USING-BLOCKCHAIN/static/media/tachyon.e3b195fc8c599b7bcf59.mp4",
+    "index.html": "/SUPPLY-CHAIN-MANAGEMENT-USING-BLOCKCHAIN/index.html",
+    "main.a68f383a.css.map": "/SUPPLY-CHAIN-MANAGEMENT-USING-BLOCKCHAIN/static/css/main.a68f383a.css.map",
+    "main.b30b1328.js.map": "/SUPPLY-CHAIN-MANAGEMENT-USING-BLOCKCHAIN/static/js/main.b30b1328.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a68f383a.css",
+    "static/js/main.b30b1328.js"
+  ]
+}
